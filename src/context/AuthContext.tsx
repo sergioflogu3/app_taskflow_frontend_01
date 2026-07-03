@@ -1,5 +1,5 @@
 import {
-  createContext, useContext, useState, useEffect, ReactNode
+  createContext, useContext, useState, useEffect, type ReactNode
 } from 'react';
 import type { User } from '../types';
 

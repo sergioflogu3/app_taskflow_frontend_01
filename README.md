@@ -1,75 +1,110 @@
-# React + TypeScript + Vite
+# TaskFlow Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Aplicación web de gestión de tareas con autenticación JWT, desarrollada con React + TypeScript + Vite + Tailwind CSS v4.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+| Tecnología      | Versión |
+|-----------------|---------|
+| React           | 19      |
+| TypeScript      | 6       |
+| Vite            | 8       |
+| Tailwind CSS    | 4       |
+| React Router    | 7       |
+| Axios           | 1       |
 
-## React Compiler
+## Requisitos
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Node.js >= 20
+- npm >= 10
 
-## Expanding the ESLint configuration
+## Instalación
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Desarrollo
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+npm run dev
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Abre [http://localhost:5173](http://localhost:5173).
+
+## Build
+
+```bash
+npm run build
+```
+
+## Linting
+
+```bash
+npm run lint
+```
+
+## Variables de entorno
+
+| Variable            | Valor por defecto            | Descripción                         |
+|---------------------|------------------------------|-------------------------------------|
+| `VITE_API_URL`      | `http://localhost:3001`       | URL base del backend (sin `/api`)   |
+
+## Arquitectura
 
 ```
+src/
+├── api/
+│   ├── axios.ts              # Instancia de Axios con interceptores
+│   └── auth.service.ts        # Servicio de autenticación
+├── components/
+│   └── ProtectedRoute.tsx     # Ruta protegida (redirige a /login si no autenticado)
+├── context/
+│   └── AuthContext.tsx         # Contexto de autenticación (login, logout, user, token)
+├── pages/
+│   ├── LoginPage.tsx          # Página de inicio de sesión
+│   ├── RegisterPage.tsx       # Página de registro
+│   └── DashboardPage.tsx      # Dashboard protegido
+├── types/
+│   └── index.ts               # Tipos compartidos (User, ApiResponse, etc.)
+├── App.tsx                    # Router principal
+├── App.css
+├── index.css                  # Entrypoint de Tailwind
+└── main.tsx                   # Punto de entrada
+```
+
+## Funcionalidades
+
+### Autenticación
+
+- **Login** (`POST /api/auth/login`): autenticación con email y contraseña, devuelve token JWT y datos del usuario.
+- **Registro** (`POST /api/auth/register`): creación de cuenta con name, email y password.
+- **Persistencia de sesión**: el token y usuario se guardan en `localStorage` y se restauran al recargar la página.
+- **Interceptor 401**: si el backend responde con 401, se limpia la sesión automáticamente y se redirige a `/login`.
+
+### Rutas
+
+| Ruta          | Acceso     | Componente       |
+|---------------|------------|------------------|
+| `/login`      | Público    | `LoginPage`      |
+| `/register`   | Público    | `RegisterPage`   |
+| `/dashboard`  | Protegido  | `DashboardPage`  |
+| `/`           | Redirige a `/dashboard` | |
+| `*`           | Redirige a `/login`     | |
+
+### Tipos principales (`src/types/index.ts`)
+
+```ts
+ApiResponse<T>   // Envoltorio de respuestas del backend: status, message, data, timestamp
+AuthPayload       // { token, user }
+User              // { id, name, email }
+LoginCredentials  // { email, password }
+RegisterData      // { name, email, password }
+```
+
+### Variables de entorno del backend esperado
+
+El backend debe exponer:
+
+- `POST /api/auth/login` — body: `{ email, password }` → response: `{ status: 200, message, data: { token, user }, timestamp }`
+- `POST /api/auth/register` — body: `{ name, email, password }` → response: `{ status: 200, message, data: { token, user }, timestamp }`

@@ -16,7 +16,7 @@ export const authService = {
   async register(payload: RegisterData): Promise<AuthPayload> {
     const response = await api.post<ApiResponse<AuthPayload>>('/auth/register', payload);
 
-    if (response.data.status !== 200) {
+    if (response.data.status !== 201) {
       throw new Error(response.data.message);
     }
 

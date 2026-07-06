@@ -4,8 +4,8 @@ import type { ApiResponse, Task, CreateTaskData, UpdateTaskData } from '../types
 export const tasksService = {
 
   async getByProject(projectId: string): Promise<Task[]> {
-    const res = await api.get<ApiResponse<Task[]>>(`/tasks/project/${projectId}`);
-    return res.data.data;
+    const res = await api.get<ApiResponse<{ items: Task[]; count: number }>>(`/tasks/project/${projectId}`);
+    return res.data.data.items ?? [];
   },
 
   async create(data: CreateTaskData): Promise<Task> {

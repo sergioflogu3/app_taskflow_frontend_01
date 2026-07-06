@@ -6,6 +6,8 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 
 import './App.css'
+import ProjectsPage from './pages/ProjectsPage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
 
 export default function App() {
   return (
@@ -19,6 +21,8 @@ export default function App() {
           {/* Rutas protegidas — anidadas bajo ProtectedRoute */}
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/projects" element={<ProjectsPage />} />
+            <Route path="/projects/:id" element={<ProjectDetailPage />} />
           </Route>
 
           {/* Ruta raíz → dashboard (ProtectedRoute redirigirá a /login si no autenticado) */}

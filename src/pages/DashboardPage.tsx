@@ -5,7 +5,7 @@ import { useState } from 'react';
 const menuItems = [
   { label: 'Inicio', icon: '🏠', active: true },
   { label: 'Tareas', icon: '📋', active: false },
-  { label: 'Calendario', icon: '📅', active: false },
+  { label: 'Proyectos', icon: '📅', active: false },
   { label: 'Configuración', icon: '⚙️', active: false },
 ];
 

@@ -7,6 +7,7 @@ import { KANBAN_COLUMNS } from '../config/kanban';
 import { KanbanColumn } from '../components/KanbanColumn';
 import { CreateTaskModal } from '../components/CreateTaskModal';
 import { EditTaskModal } from '../components/EditTaskModal';
+import { TaskCommentsModal } from '../components/TaskCommentsModal';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,10 +17,12 @@ export default function ProjectDetailPage() {
   const [tasks,          setTasks]          = useState<Task[]>([]);
   const [loading,        setLoading]        = useState(true);
   const [error,          setError]          = useState('');
-  const [showModal,      setShowModal]      = useState(false);
-  const [showEditModal,  setShowEditModal]  = useState(false);
-  const [editingTask,    setEditingTask]    = useState<Task | null>(null);
-  const [draggingTaskId, setDraggingTaskId] = useState<string | null>(null);
+  const [showModal,        setShowModal]        = useState(false);
+  const [showEditModal,    setShowEditModal]    = useState(false);
+  const [editingTask,      setEditingTask]      = useState<Task | null>(null);
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [commentingTask,   setCommentingTask]   = useState<Task | null>(null);
+  const [draggingTaskId,  setDraggingTaskId]   = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!id) return;
@@ -69,6 +72,11 @@ export default function ProjectDetailPage() {
   const handleEdit = (task: Task) => {
     setEditingTask(task);
     setShowEditModal(true);
+  };
+
+  const handleComments = (task: Task) => {
+    setCommentingTask(task);
+    setShowCommentsModal(true);
   };
 
   const handleTaskUpdated = (updatedTask: Task) => {
@@ -140,6 +148,7 @@ export default function ProjectDetailPage() {
               onStatusChange={handleStatusChange}
               onDelete={handleDelete}
               onEdit={handleEdit}
+              onComments={handleComments}
               onAddTask={col.id === 'TODO' ? () => setShowModal(true) : undefined}
               onDragStart={handleDragStart}
               onDragEnd={handleDragEnd}
@@ -162,6 +171,13 @@ export default function ProjectDetailPage() {
           task={editingTask}
           onUpdated={handleTaskUpdated}
           onClose={() => { setShowEditModal(false); setEditingTask(null); }}
+        />
+      )}
+
+      {showCommentsModal && commentingTask && (
+        <TaskCommentsModal
+          task={commentingTask}
+          onClose={() => { setShowCommentsModal(false); setCommentingTask(null); }}
         />
       )}
     </div>

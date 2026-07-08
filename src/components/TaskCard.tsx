@@ -7,12 +7,13 @@ interface TaskCardProps {
   onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
   onDelete: (taskId: string) => void;
   onEdit: (task: Task) => void;
+  onComments: (task: Task) => void;
   onDragStart: (taskId: string) => void;
   onDragEnd: () => void;
   isDragging: boolean;
 }
 
-export function TaskCard({ task, onStatusChange, onDelete, onEdit, onDragStart, onDragEnd, isDragging }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, onDelete, onEdit, onComments, onDragStart, onDragEnd, isDragging }: TaskCardProps) {
   const [hovered, setHovered] = useState(false);
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -52,24 +53,24 @@ export function TaskCard({ task, onStatusChange, onDelete, onEdit, onDragStart, 
         ✏️
       </button>
 
-      <p className="font-medium text-slate-800 text-sm pr-4 mb-1">{task.title}</p>
+      <div onClick={() => onComments(task)} className="cursor-pointer">
+        <p className="font-medium text-slate-800 text-sm pr-4 mb-1">{task.title}</p>
 
-      {task.description && (
-        <p className="text-xs text-slate-500 line-clamp-2 mb-2">{task.description}</p>
-      )}
-
-      <div className="flex items-center justify-between mt-2">
-        {task.assignee ? (
-          <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
-            {task.assignee.name}
-          </span>
-        ) : <span />}
-
-        {(task._count?.comments ?? 0) > 0 && (
-          <span className="text-xs text-slate-400">
-            💬 {task._count?.comments}
-          </span>
+        {task.description && (
+          <p className="text-xs text-slate-500 line-clamp-2 mb-2">{task.description}</p>
         )}
+
+        <div className="flex items-center justify-between mt-2">
+          {task.assignee ? (
+            <span className="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full">
+              {task.assignee.name}
+            </span>
+          ) : <span />}
+
+          <span className="text-xs text-slate-400">
+            💬 {task._count?.comments ?? 0}
+          </span>
+        </div>
       </div>
 
       {/* Selector de estado */}

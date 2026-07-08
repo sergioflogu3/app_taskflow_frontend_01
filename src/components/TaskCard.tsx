@@ -6,12 +6,13 @@ interface TaskCardProps {
   task: Task;
   onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
   onDelete: (taskId: string) => void;
+  onEdit: (task: Task) => void;
   onDragStart: (taskId: string) => void;
   onDragEnd: () => void;
   isDragging: boolean;
 }
 
-export function TaskCard({ task, onStatusChange, onDelete, onDragStart, onDragEnd, isDragging }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, onDelete, onEdit, onDragStart, onDragEnd, isDragging }: TaskCardProps) {
   const [hovered, setHovered] = useState(false);
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -33,11 +34,22 @@ export function TaskCard({ task, onStatusChange, onDelete, onDragStart, onDragEn
     >
       {/* Botón eliminar — solo visible en hover */}
       <button
-        onClick={() => onDelete(task.id)}
-        className="absolute top-2 right-2 text-slate-300 hover:text-red-500
-                   opacity-0 group-hover:opacity-100 transition text-lg leading-none"
+        onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
+        className="absolute top-2 right-8 text-slate-300 hover:text-red-500
+                   opacity-0 group-hover:opacity-100 transition text-lg leading-none w-6 h-6 flex items-center justify-center"
+        title="Eliminar"
       >
         ×
+      </button>
+
+      {/* Botón editar — solo visible en hover */}
+      <button
+        onClick={(e) => { e.stopPropagation(); onEdit(task); }}
+        className="absolute top-2 right-14 text-slate-300 hover:text-blue-500
+                   opacity-0 group-hover:opacity-100 transition text-sm leading-none w-6 h-6 flex items-center justify-center"
+        title="Editar"
+      >
+        ✏️
       </button>
 
       <p className="font-medium text-slate-800 text-sm pr-4 mb-1">{task.title}</p>

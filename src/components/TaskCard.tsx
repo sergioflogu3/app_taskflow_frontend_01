@@ -6,15 +6,28 @@ interface TaskCardProps {
   task: Task;
   onStatusChange: (taskId: string, newStatus: TaskStatus) => void;
   onDelete: (taskId: string) => void;
+  onDragStart: (taskId: string) => void;
+  onDragEnd: () => void;
+  isDragging: boolean;
 }
 
-export function TaskCard({ task, onStatusChange, onDelete }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, onDelete, onDragStart, onDragEnd, isDragging }: TaskCardProps) {
   const [hovered, setHovered] = useState(false);
+
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', task.id);
+    onDragStart(task.id);
+  };
 
   return (
     <div
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={onDragEnd}
       className={`bg-white rounded-lg border border-slate-200 p-3 shadow-sm
-                  transition ${hovered ? 'shadow-md' : ''} relative group`}
+                  transition cursor-grab active:cursor-grabbing
+                  ${hovered ? 'shadow-md' : ''} ${isDragging ? 'opacity-50 scale-95' : ''} relative group`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >

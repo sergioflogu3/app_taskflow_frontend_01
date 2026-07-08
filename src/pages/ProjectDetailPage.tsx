@@ -11,11 +11,12 @@ export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [project,  setProject]  = useState<Project | null>(null);
-  const [tasks,    setTasks]    = useState<Task[]>([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState('');
-  const [showModal,setShowModal]= useState(false);
+  const [project,        setProject]        = useState<Project | null>(null);
+  const [tasks,          setTasks]          = useState<Task[]>([]);
+  const [loading,        setLoading]        = useState(true);
+  const [error,          setError]          = useState('');
+  const [showModal,      setShowModal]      = useState(false);
+  const [draggingTaskId,  setDraggingTaskId] = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!id) return;
@@ -62,6 +63,23 @@ export default function ProjectDetailPage() {
     setShowModal(false);
   };
 
+  const handleDragStart = (taskId: string) => {
+    setDraggingTaskId(taskId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingTaskId(null);
+  };
+
+  const handleDrop = async (newStatus: TaskStatus) => {
+    if (!draggingTaskId) return;
+    const task = tasks.find(t => t.id === draggingTaskId);
+    if (task && task.status !== newStatus) {
+      await handleStatusChange(draggingTaskId, newStatus);
+    }
+    setDraggingTaskId(null);
+  };
+
   // Agrupar tareas por estado para el Kanban
   const tasksByStatus = KANBAN_COLUMNS.reduce((acc, col) => {
     acc[col.id] = tasks.filter(t => t.status === col.id);
@@ -104,9 +122,13 @@ export default function ProjectDetailPage() {
               key={col.id}
               config={col}
               tasks={tasksByStatus[col.id] ?? []}
+              draggingTaskId={draggingTaskId}
               onStatusChange={handleStatusChange}
               onDelete={handleDelete}
               onAddTask={col.id === 'TODO' ? () => setShowModal(true) : undefined}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDrop={handleDrop}
             />
           ))}
         </div>

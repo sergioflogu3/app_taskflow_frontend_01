@@ -9,16 +9,23 @@ import { KANBAN_COLUMNS } from '../config/kanban';
 import { KanbanColumn } from '../components/KanbanColumn';
 import { DroppableColumn } from '../components/DroppableColumn';
 import { CreateTaskModal } from '../components/CreateTaskModal';
+import { EditTaskModal } from '../components/EditTaskModal';
+import { TaskCommentsModal } from '../components/TaskCommentsModal';
 
 export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [project,  setProject]  = useState<Project | null>(null);
-  const [tasks,    setTasks]    = useState<Task[]>([]);
-  const [loading,  setLoading]  = useState(true);
-  const [error,    setError]    = useState('');
-  const [showModal,setShowModal]= useState(false);
+  const [project,        setProject]        = useState<Project | null>(null);
+  const [tasks,          setTasks]          = useState<Task[]>([]);
+  const [loading,        setLoading]        = useState(true);
+  const [error,          setError]          = useState('');
+  const [showModal,        setShowModal]        = useState(false);
+  const [showEditModal,    setShowEditModal]    = useState(false);
+  const [editingTask,      setEditingTask]      = useState<Task | null>(null);
+  const [showCommentsModal, setShowCommentsModal] = useState(false);
+  const [commentingTask,   setCommentingTask]   = useState<Task | null>(null);
+  const [draggingTaskId,  setDraggingTaskId]   = useState<string | null>(null);
 
   const loadData = useCallback(async () => {
     if (!id) return;
@@ -65,6 +72,7 @@ export default function ProjectDetailPage() {
     setShowModal(false);
   };
 
+<<<<<<< HEAD
   const sensors = useSensors(useSensor(PointerSensor, {
     activationConstraint: { distance: 8 },
   }));
@@ -76,6 +84,39 @@ export default function ProjectDetailPage() {
     const newStatus = over.id as TaskStatus;
     if (tasks.find(t => t.id === taskId)?.status === newStatus) return;
     handleStatusChange(taskId, newStatus);
+=======
+  const handleEdit = (task: Task) => {
+    setEditingTask(task);
+    setShowEditModal(true);
+  };
+
+  const handleComments = (task: Task) => {
+    setCommentingTask(task);
+    setShowCommentsModal(true);
+  };
+
+  const handleTaskUpdated = (updatedTask: Task) => {
+    setTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+    setShowEditModal(false);
+    setEditingTask(null);
+  };
+
+  const handleDragStart = (taskId: string) => {
+    setDraggingTaskId(taskId);
+  };
+
+  const handleDragEnd = () => {
+    setDraggingTaskId(null);
+  };
+
+  const handleDrop = async (newStatus: TaskStatus) => {
+    if (!draggingTaskId) return;
+    const task = tasks.find(t => t.id === draggingTaskId);
+    if (task && task.status !== newStatus) {
+      await handleStatusChange(draggingTaskId, newStatus);
+    }
+    setDraggingTaskId(null);
+>>>>>>> quinta_clase
   };
 
   // Agrupar tareas por estado para el Kanban
@@ -114,6 +155,7 @@ export default function ProjectDetailPage() {
 
       {/* Tablero Kanban */}
       <main className="max-w-screen-xl mx-auto p-6">
+<<<<<<< HEAD
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {KANBAN_COLUMNS.map(col => (
@@ -129,6 +171,26 @@ export default function ProjectDetailPage() {
             ))}
           </div>
         </DndContext>
+=======
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {KANBAN_COLUMNS.map(col => (
+            <KanbanColumn
+              key={col.id}
+              config={col}
+              tasks={tasksByStatus[col.id] ?? []}
+              draggingTaskId={draggingTaskId}
+              onStatusChange={handleStatusChange}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+              onComments={handleComments}
+              onAddTask={col.id === 'TODO' ? () => setShowModal(true) : undefined}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDrop={handleDrop}
+            />
+          ))}
+        </div>
+>>>>>>> quinta_clase
       </main>
 
       {showModal && project && (
@@ -136,6 +198,21 @@ export default function ProjectDetailPage() {
           projectId={project.id}
           onCreated={handleTaskCreated}
           onClose={() => setShowModal(false)}
+        />
+      )}
+
+      {showEditModal && editingTask && (
+        <EditTaskModal
+          task={editingTask}
+          onUpdated={handleTaskUpdated}
+          onClose={() => { setShowEditModal(false); setEditingTask(null); }}
+        />
+      )}
+
+      {showCommentsModal && commentingTask && (
+        <TaskCommentsModal
+          task={commentingTask}
+          onClose={() => { setShowCommentsModal(false); setCommentingTask(null); }}
         />
       )}
     </div>
